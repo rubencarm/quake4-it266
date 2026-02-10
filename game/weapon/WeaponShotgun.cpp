@@ -164,7 +164,7 @@ stateResult_t rvWeaponShotgun::State_Fire( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
-			Attack( false, hitscans/2, spread, 0, 1.0f );
+			Attack( false, hitscans/2, spread, 0, 1.0f); //todo: figure out why ammorequired = 2 isnt removing 2 shells
 			Attack( false, hitscans/2, spread, 0, 1.0f);
 
 			// PlayAnim( ANIMCHANNEL_ALL, "lower", 0 );

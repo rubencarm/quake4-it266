@@ -9,6 +9,8 @@
 #include "../Projectile.h"
 #endif
 
+idRandom randy;
+
 class rvWeaponRocketLauncher : public rvWeapon {
 public:
 
@@ -147,9 +149,9 @@ void rvWeaponRocketLauncher::Think ( void ) {
 	rvWeapon::Think ( );
 
 	// IF no guide range is set then we dont have the mod yet	
-	if ( !guideRange ) {
-		return;
-	}
+	// if ( !guideRange ) {
+	// 	return;
+	// }
 	
 	if ( !wsfl.zoom ) {
 		if ( guideEffect ) {
@@ -446,7 +448,8 @@ stateResult_t rvWeaponRocketLauncher::State_Fire ( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));		
-			Attack ( false, 1, spread, 0, 1.0f );
+			Attack ( true, (randy.idRandom::RandomInt(9) + 1) , spread, 0, 1.0f);
+			gameLocal.Printf("RocketLauncher spread: %i\n", spread);
 			PlayAnim ( ANIMCHANNEL_LEGS, "fire", parms.blendFrames );	
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
