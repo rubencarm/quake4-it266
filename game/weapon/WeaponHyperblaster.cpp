@@ -29,7 +29,7 @@ protected:
 	void					SpinDown			( void );
 
 private:
-
+	int burst = 3;
 	stateResult_t		State_Idle		( const stateParms_t& parms );
 	stateResult_t		State_Fire		( const stateParms_t& parms );
 	stateResult_t		State_Reload	( const stateParms_t& parms );
@@ -228,25 +228,43 @@ stateResult_t rvWeaponHyperblaster::State_Fire ( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			SpinUp ( );
-			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
-			Attack ( false, 1, spread, 0, 1.0f );
-			if ( ClipSize() ) {
-				viewModel->SetShaderParm ( HYPERBLASTER_SPARM_BATTERY, (float)AmmoInClip()/ClipSize() );
-			} else {
-				viewModel->SetShaderParm ( HYPERBLASTER_SPARM_BATTERY, 1.0f );		
+			if (burst) {
+				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+				Attack(false, 1, spread, 0, 1.0f);
+				if (ClipSize()) {
+					viewModel->SetShaderParm(HYPERBLASTER_SPARM_BATTERY, (float)AmmoInClip() / ClipSize());
+				}
+				else {
+					viewModel->SetShaderParm(HYPERBLASTER_SPARM_BATTERY, 1.0f);
+				}
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+				burst--;
 			}
-			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
-		case STAGE_WAIT:		
+		case STAGE_WAIT:
+			
 			if ( wsfl.attack && gameLocal.time >= nextAttackTime && AmmoInClip() && !wsfl.lowerWeapon ) {
-				SetState ( "Fire", 0 );
-				return SRESULT_DONE;
+				if (burst) {
+					SetState("Fire", 0);
+					return SRESULT_DONE;
+				}
 			}
+			
 			if ( (!wsfl.attack || !AmmoInClip() || wsfl.lowerWeapon) && AnimDone ( ANIMCHANNEL_ALL, 0 ) ) {
 				SetState ( "Idle", 0 );
 				return SRESULT_DONE;
-			}		
+			}
+
+			if (!burst) {
+				burst = 3;
+				nextAttackTime = gameLocal.time + fireRate * burst * 2;
+				if (wsfl.attack && gameLocal.time >= nextAttackTime) {
+					SetState("Idle", 0);
+					return SRESULT_DONE;
+				}
+			
+			}
 			return SRESULT_WAIT;
 	}
 	return SRESULT_ERROR;
