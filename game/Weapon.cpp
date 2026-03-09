@@ -2604,6 +2604,10 @@ void rvWeapon::Attack( bool altAttack, int num_attacks, float spread, float fuse
 	}
 }
 
+void rvWeapon::Attack2(bool altAttack, int num_attacks, float spread, float fuseOffset, float power) {
+	return;
+}
+
 /*
 ================
 rvWeapon::LaunchProjectiles
@@ -2647,13 +2651,14 @@ void rvWeapon::LaunchProjectiles ( idDict& dict, const idVec3& muzzleOrigin, con
 		spin = (float)DEG2RAD( 360.0f ) * gameLocal.random.RandomFloat();
 //RAVEN BEGIN
 //asalmon: xbox must use muzzle Axis for aim assistance
-#ifdef _XBOX
+// ruben begin
+// alright why we gonna set muzzleAxis but not use it...
+// what the freak
+// ruben end 
+
 		dir = muzzleAxis[ 0 ] + muzzleAxis[ 2 ] * ( ang * idMath::Sin( spin ) ) - muzzleAxis[ 1 ] * ( ang * idMath::Cos( spin ) );
 		dir += dirOffset;
-#else
-		dir = playerViewAxis[ 0 ] + playerViewAxis[ 2 ] * ( ang * idMath::Sin( spin ) ) - playerViewAxis[ 1 ] * ( ang * idMath::Cos( spin ) );
-		dir += dirOffset;
-#endif
+
 //RAVEN END
 		dir.Normalize();
 	
@@ -2745,6 +2750,7 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 	float	spin;
 	idVec3	dir;
 	int		areas[ 2 ];
+	idEntity* target;
 
 	idBitMsg	msg;
 	byte		msgBuf[ MAX_GAME_MESSAGE_SIZE ];
@@ -2820,7 +2826,21 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 		}
 		dir.Normalize();
 
-		gameLocal.HitScan( dict, muzzleOrigin, dir, fxOrigin, owner, false, 1.0f, NULL, areas );
+
+
+		target = gameLocal.HitScan( dict, muzzleOrigin, dir, fxOrigin, owner, false, 1.0f, NULL, areas );
+		gameLocal.Printf("%s\n", target->name.c_str());
+
+		if(owner != nullptr){
+			if (target->fl.takedamage && target->health > 0) {
+				if (owner->health < 100) {
+					owner->health += (gameLocal.random.RandomInt(9) + 1);
+					if (owner->health > 100) {
+						owner->health = 100;
+					}
+				}
+			}
+		}
 
 		if ( gameLocal.isServer ) {
 			msg.WriteDir( dir, 24 );
