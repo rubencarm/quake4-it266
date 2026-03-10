@@ -2788,40 +2788,27 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 			float r = gameLocal.random.RandomFloat() * idMath::PI * 2.0f;
 			float u = idMath::Sin( r ) * gameLocal.random.CRandomFloat() * spread * 16;
 			r = idMath::Cos( r ) * gameLocal.random.CRandomFloat() * spread * 16;
-#ifdef _XBOX
 			end = muzzleOrigin + ( ( 8192 * 16 ) * muzzleAxis[ 0 ] );
 			end += ( r * muzzleAxis[ 1 ] );
 			end += ( u * muzzleAxis[ 2 ] );
-#else
-			end = muzzleOrigin + ( ( 8192 * 16 ) * playerViewAxis[ 0 ] );
-			end += ( r * playerViewAxis[ 1 ] );
-			end += ( u * playerViewAxis[ 2 ] );
-#endif
 			dir = end - muzzleOrigin;
+			//man...
 		} else if( weaponDef->dict.GetBool( "shotgunSpreadStyle" ) ) {
 			float r = gameLocal.random.CRandomFloat() * spread * 16;
 			float u = gameLocal.random.CRandomFloat() * spread * 16;
 
-#ifdef _XBOX
 			end = muzzleOrigin + ( ( 8192 * 16 ) * muzzleAxis[ 0 ] );
 			end += ( r * muzzleAxis[ 1 ] );
 			end += ( u * muzzleAxis[ 2 ] );
-#else
-			end = muzzleOrigin + ( ( 8192 * 16 ) * playerViewAxis[ 0 ] );
-			end += ( r * playerViewAxis[ 1 ] );
-			end += ( u * playerViewAxis[ 2 ] );
-#endif
 			dir = end - muzzleOrigin;
 		} else {
 			ang = idMath::Sin( spreadRad * gameLocal.random.RandomFloat() );
 			spin = (float)DEG2RAD( 360.0f ) * gameLocal.random.RandomFloat();
 			//RAVEN BEGIN
 			//asalmon: xbox must use the muzzleAxis so the aim can be adjusted for aim assistance
-#ifdef _XBOX
 			dir = muzzleAxis[ 0 ] + muzzleAxis[ 2 ] * ( ang * idMath::Sin( spin ) ) - muzzleAxis[ 1 ] * ( ang * idMath::Cos( spin ) );
-#else
-			dir = playerViewAxis[ 0 ] + playerViewAxis[ 2 ] * ( ang * idMath::Sin( spin ) ) - playerViewAxis[ 1 ] * ( ang * idMath::Cos( spin ) );
-#endif
+			//ok like
+			//cmon...
 			//RAVEN END
 		}
 		dir.Normalize();
@@ -2832,7 +2819,7 @@ void rvWeapon::Hitscan( const idDict& dict, const idVec3& muzzleOrigin, const id
 		gameLocal.Printf("%s\n", target->name.c_str());
 
 		if(owner != nullptr){
-			if (target->fl.takedamage && target->health > 0) {
+			if (target->fl.takedamage && target->health > 0 && weaponDef->dict.GetBool("machineGunSpreadStyle")) {
 				if (owner->health < 100) {
 					owner->health += (gameLocal.random.RandomInt(9) + 1);
 					if (owner->health > 100) {

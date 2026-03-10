@@ -21,7 +21,8 @@ public:
 
 protected:
 	int						hitscans;
-
+	int						fireHeldTime;
+	float					spread;
 private:
 
 	stateResult_t		State_Idle		( const stateParms_t& parms );
@@ -49,6 +50,7 @@ rvWeaponShotgun::Spawn
 */
 void rvWeaponShotgun::Spawn( void ) {
 	hitscans   = spawnArgs.GetFloat( "hitscans" );
+	spread = spawnArgs.GetFloat("spread");
 	
 	SetState( "Raise", 0 );	
 }
@@ -157,6 +159,11 @@ rvWeaponShotgun::State_Fire
 ================
 */
 stateResult_t rvWeaponShotgun::State_Fire( const stateParms_t& parms ) {
+	float power = 1;
+	idDict& dict = attackDict;
+	int i;
+	int num_proj = 5;
+	idMat3 transformedAxis;
 	enum {
 		STAGE_INIT,
 		STAGE_WAIT,
@@ -164,12 +171,24 @@ stateResult_t rvWeaponShotgun::State_Fire( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+			power *= owner->PowerUpModifier(PMOD_PROJECTILE_DAMAGE);
+			// go straight out of the view
+			muzzleOrigin = playerViewOrigin;
+			muzzleAxis = playerViewAxis;
+			muzzleOrigin += playerViewAxis[0] * muzzleOffset;
 
 
+			for (i = 0, transformedAxis = muzzleAxis; i < num_proj; i++) {
+				spread = 7.0f;
 
-			// PlayAnim( ANIMCHANNEL_ALL, "lower", 0 );
-			// PlayAnim( ANIMCHANNEL_ALL, "raise", 0);
-			SetState("Lower", 0); // mimicing lazy supershotgun reload
+				transformedAxis.RotateRelative(2, ((spread / 2) * (num_proj - 1)) - (i * spread));
+				Hitscan(dict, muzzleOrigin, transformedAxis, 1, 0.0f, power);
+				transformedAxis = muzzleAxis;
+			}
+
+			PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+
+		
 			return SRESULT_STAGE( STAGE_WAIT );
 	
 		case STAGE_WAIT:

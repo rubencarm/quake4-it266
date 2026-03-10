@@ -432,24 +432,23 @@ stateResult_t rvWeaponBlaster::State_Fire ( const stateParms_t& parms ) {
 
 				idDict& dict = attackDict;
 				power *= owner->PowerUpModifier(PMOD_PROJECTILE_DAMAGE);
-				if (barrelJointView != INVALID_JOINT && spawnArgs.GetBool("launchFromBarrel")) {
-					// there is an explicit joint for the muzzle
-					GetGlobalJointTransform(true, barrelJointView, muzzleOrigin, muzzleAxis);
-				}
-				else {
+				
 					// go straight out of the view
 					muzzleOrigin = playerViewOrigin;
 					muzzleAxis = playerViewAxis;
 					muzzleOrigin += playerViewAxis[0] * muzzleOffset;
-				}
+				
 
-				idMat3 transformedAxis = muzzleAxis;
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
-				transformedAxis.RotateRelative(2, 4.0);
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
-				transformedAxis = muzzleAxis;
-				transformedAxis.RotateRelative(2, -4.0);
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
+				//distribution = spread for this or angle between shots
+				int i;
+				int num_proj = 5;
+				idMat3 transformedAxis;
+				for (i = 0, transformedAxis = muzzleAxis; i <num_proj; i++) {
+					transformedAxis.RotateRelative(2, ((spread / 2)* (num_proj - 1)) - (i * spread));
+					LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0f , 0.0f , power);
+					transformedAxis = muzzleAxis;
+
+				}
 				PlayEffect ( "fx_chargedflash", barrelJointView, false );
 				PlayAnim( ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames );
 
@@ -458,23 +457,20 @@ stateResult_t rvWeaponBlaster::State_Fire ( const stateParms_t& parms ) {
 
 				idDict& dict = attackDict;
 				power *= owner->PowerUpModifier(PMOD_PROJECTILE_DAMAGE);
-				if (barrelJointView != INVALID_JOINT && spawnArgs.GetBool("launchFromBarrel")) {
-					// there is an explicit joint for the muzzle
-					GetGlobalJointTransform(true, barrelJointView, muzzleOrigin, muzzleAxis);
-				}
-				else {
-					// go straight out of the view
+			
 					muzzleOrigin = playerViewOrigin;
 					muzzleAxis = playerViewAxis;
 					muzzleOrigin += playerViewAxis[0] * muzzleOffset;
+			
+				int i;
+				int num_proj = 3;
+				idMat3 transformedAxis;
+				for (i = 0, transformedAxis = muzzleAxis; i < num_proj; i++) {
+					transformedAxis.RotateRelative(2, ((spread / 2) * (num_proj - 1)) - (i * spread));
+					LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, 1.0);
+					transformedAxis = muzzleAxis;
+
 				}
-				idMat3 transformedAxis = muzzleAxis;
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
-				transformedAxis.RotateRelative(2, 4.0);
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
-				transformedAxis = muzzleAxis;
-				transformedAxis.RotateRelative(2, -4.0);
-				LaunchProjectiles(dict, muzzleOrigin, transformedAxis, 1, 0.0, 0.0, power);
 				PlayEffect("fx_chargedflash", barrelJointView, false);
 				PlayAnim(ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames);
 			}
