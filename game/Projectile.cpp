@@ -442,7 +442,7 @@ void idProjectile::Launch( const idVec3 &start, const idVec3 &dir, const idVec3 
 	physicsObj.SetMass( mass );
 	physicsObj.SetFriction( linear_friction, angular_friction, contact_friction );
 	physicsObj.SetBouncyness( bounce, !projectileFlags.detonate_on_bounce );
-	physicsObj.SetGravity( gravVec/100 );
+	physicsObj.SetGravity( gravVec );
 	physicsObj.SetContents( contents );
  	physicsObj.SetClipMask( clipMask | CONTENTS_WATER );
 	physicsObj.SetLinearVelocity( dir * speed.GetCurrentValue(gameLocal.time) + pushVelocity );
