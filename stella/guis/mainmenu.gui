@@ -1887,7 +1887,7 @@ windowDef Desktop
 				rect	41,137,565,228
 				visible	1
 				forecolor	1,1,1,1
-				text	"this is the help screen."
+				text	"Thank you for trying out my mod!\nHere are some important commands.\n give all to try out all weapons\n bind explode_mine to use the mine launcher\n bind launch_grapple for grappling hook\n bind dash (self explanatory)\n bind sprint\n bind morph_ball\n bind shine_spark\n give codes:\n met_energy_tank met_rocket_upgrade \n met_super_rocket met_cloak \n met_gravity_suit"
 				textscale	0.25
 				font	"fonts/marine"
 			}
